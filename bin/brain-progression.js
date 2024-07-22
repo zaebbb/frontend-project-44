@@ -3,57 +3,57 @@
 import readlineSync from 'readline-sync';
 
 // Функция для генерации случайной арифметической прогрессии
-function generateProgression() {
-    const length = Math.floor(Math.random() * 6) + 5; // случайная длина от 5 до 10
-    const start = Math.floor(Math.random() * 20) + 1; // случайное начальное число от 1 до 20
-    const difference = Math.floor(Math.random() * 5) + 1; // случайная разница от 1 до 5
+// Функция для генерации случайного числа в заданном диапазоне [min, max]
+const generateRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
 
-    const progression = [];
-    for (let i = 0; i < length; i++) {
-        progression.push(start + i * difference);
+// Функция для генерации арифметической прогрессии
+const generateProgression = (length) => {
+  const start = generateRandomNumber(1, 20); // начальное число случайно от 1 до 20
+  const diff = generateRandomNumber(1, 10); // разность случайно от 1 до 10
+
+  let progression = [];
+  let hiddenIndex = generateRandomNumber(0, length - 1); // случайная позиция для скрытого элемента
+
+  for (let i = 0; i < length; i++) {
+    const nextNumber = start + i * diff;
+    if (i === hiddenIndex) {
+      progression.push('..'); // добавляем место для скрытого элемента
+    } else {
+      progression.push(nextNumber);
     }
+  }
 
-    const hiddenIndex = Math.floor(Math.random() * length);
-    const hiddenValue = progression[hiddenIndex];
-    progression[hiddenIndex] = '..';
+  const correctAnswer = start + hiddenIndex * diff; // правильный ответ на скрытый элемент
+  return { progression, correctAnswer };
+};
 
-    return {
-        question: progression.join(' '),
-        answer: hiddenValue.toString()
-    };
-}
+console.log('Welcome to the Brain Games!');
+const name = readlineSync.question('May I have your name? ');
+console.log(`Hello, ${name}!`);
+console.log('What number is missing in the progression?');
 
-// Функция для запуска игры
-export default function brainProgression() {
-    console.log('Welcome to the Brain Games!');
-    const name = readlineSync.question('May I have your name? ');
-    console.log(`Hello, ${name}!\n`);
+const roundsCount = 3; // количество раундов игры
+const minLength = 5; // минимальная длина прогрессии
 
-    console.log('What number is missing in the progression?');
+const playGame = () => {
+  for (let i = 0; i < roundsCount; i++) {
+    const length = generateRandomNumber(minLength, 10); // случайная длина прогрессии от 5 до 10 чисел
+    const { progression, correctAnswer } = generateProgression(length);
 
-    let correctAnswersCount = 0;
-    const maxAttempts = 3;
+    console.log(`Question: ${progression.join(' ')}`);
+    const userAnswer = readlineSync.question('Your answer: ');
 
-    while (correctAnswersCount < maxAttempts) {
-        const { question, answer } = generateProgression();
-
-        console.log(`Question: ${question}`);
-        const userAnswer = readlineSync.question('Your answer: ');
-
-        if (userAnswer === answer) {
-            console.log('Correct!');
-            correctAnswersCount++;
-        } else {
-            console.log(`'${userAnswer}' is wrong answer ;(. Correct answer was '${answer}'.`);
-            console.log(`Let's try again, ${name}!\n`);
-            break;
-        }
+    if (parseInt(userAnswer, 10) === correctAnswer) {
+      console.log('Correct!');
+    } else {
+      console.log(`'${userAnswer}' is wrong answer ;(. Correct answer was '${correctAnswer}'.`);
+      console.log(`Let's try again, ${name}!`);
+      return;
     }
+  }
+  console.log(`Congratulations, ${name}!`);
+};
 
-    if (correctAnswersCount === maxAttempts) {
-        console.log(`Congratulations, ${name}!`);
-    }
-}
-
-// Вызов функции для запуска игры при выполнении скрипта напрямую
-brainProgression();
+playGame();
